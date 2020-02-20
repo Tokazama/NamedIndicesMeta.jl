@@ -1,0 +1,7 @@
+[deps]
+ImageAxes = "2803e5a7-5153-5ecf-9a86-9b4c37f5f5ac"
+ImageCore = "a09fc81d-aa75-5fe9-8630-4744c3626534"
+MappedArrays = "dbb5928d-eab1-5f90-85c2-b9b0edb7c900"
+NamedDims = "356022a1-0364-5f58-8944-0da4b18d706f"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
