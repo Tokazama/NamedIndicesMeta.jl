@@ -1,7 +1,7 @@
 using NamedIndicesMeta, Test, Unitful, ImageCore, ImageAxes, NamedDims, AxisIndices, MappedArrays
 
 @testset "no units, no time" begin
-    A = nimarray(reshape(1:12, 3, 4), x=1:3, y =1:4)
+    A = NIMArray(reshape(1:12, 3, 4), x=1:3, y =1:4)
     @test @inferred(timeaxis(A)) === nothing
     @test !has_time_axis(A)
     @test timedim(A) == 0
@@ -20,7 +20,7 @@ end
 @testset "units, no time" begin
     mm = u"mm"     # in real use these should be global consts
     m = u"m"
-    A = nimarray(reshape(1:12, 3, 4), x = 1mm:1mm:3mm, y = 1m:2m:7m)
+    A = NIMArray(reshape(1:12, 3, 4), x = 1mm:1mm:3mm, y = 1m:2m:7m)
     @test @inferred(timeaxis(A)) === nothing
     @test !has_time_axis(A)
     @test timedim(A) == 0
@@ -37,7 +37,7 @@ end
 
 @testset "units, time" begin
     s = u"s" # again, global const
-    A = nimarray(reshape(1:12, 3, 4), x = 1:3, time = 1s:1s:4s)
+    A = NIMArray(reshape(1:12, 3, 4), x = 1:3, time = 1s:1s:4s)
     @test @inferred(timeaxis(A)) === 1s:1s:4s
     @test has_time_axis(A)
     @test timedim(A) == 2
@@ -54,7 +54,7 @@ end
 
 @testset "units, time first" begin
     s = u"s" # global const
-    A = nimarray(reshape(1:12, 4, 3), time = 1s:1s:4s, x = 1:3)
+    A = NIMArray(reshape(1:12, 4, 3), time = 1s:1s:4s, x = 1:3)
     @test @inferred(timeaxis(A)) === 1s:1s:4s
     @test has_time_axis(A)
     @test timedim(A) == 1
@@ -71,7 +71,7 @@ end
 
 # TODO
 @testset "grayscale" begin
-    A = nimarray(rand(Gray{N0f8}, 4, 5), :y, :x)
+    A = NIMArray(rand(Gray{N0f8}, 4, 5), :y, :x)
     #@test summary(A) == "2-dimensional AxisArray{Gray{N0f8},2,...} with axes:\n    :y, Base.OneTo(4)\n    :x, Base.OneTo(5)\nAnd data, a 4×5 Array{Gray{N0f8},2} with eltype Gray{Normed{UInt8,8}}"
     cv = channelview(A)
     @test axes(cv) == (1:4, 1:5)
@@ -81,7 +81,7 @@ end
 
 
 @testset "color" begin
-    A = nimarray(rand(RGB{N0f8}, 4, 5), :y, :x)
+    A = NIMArray(rand(RGB{N0f8}, 4, 5), :y, :x)
     cv = channelview(A)
     @test axes(cv) == (1:3, 1:4, 1:5)
     @test spatialorder(cv) == (:y, :x)
@@ -93,14 +93,14 @@ end
 end
 
 @testset "nested" begin
-    A = nimarray(rand(RGB{N0f8}, 4, 5), y = range(1, step=2, length=4), x = 1:5)
+    A = NIMArray(rand(RGB{N0f8}, 4, 5), y = range(1, step=2, length=4), x = 1:5)
     P = permuteddimsview(A, (2, 1))
     @test @inferred(pixelspacing(P)) == (1, 2)
     #M = mappedarray(identity, A)
     #@test @inferred(pixelspacing(M)) == (2, 1)
     s = u"s" # global const
     μm = u"μm" # global const
-    A = nimarray(rand(N0f16, 4, 5, 11),
+    A = NIMArray(rand(N0f16, 4, 5, 11),
                  y = range(1μm, step=2μm, length=4),
                  x = range(1μm, step = 1μm, length=5),
                  time = range(0.0s, step=0.1s, length=11))
@@ -116,7 +116,7 @@ end
     @test_throws ErrorException assert_timedim_last(P)
     assert_timedim_last(M)
 
-    A = nimarray(rand(N0f16, 11, 5, 4),
+    A = NIMArray(rand(N0f16, 11, 5, 4),
                   time = range(0.0s, step=0.1s, length=11),
                   x = range(1μm, step = 1μm, length=5),
                   y = range(1μm, step=2μm, length=4))
@@ -139,13 +139,13 @@ end
 
 # Possibly-ambiguous functions
 @testset "ambig" begin
-    A = nimarray(rand(RGB{N0f8},3,5), :x, :y)
+    A = NIMArray(rand(RGB{N0f8},3,5), :x, :y)
     @test isa(convert(Array{RGB{N0f8},2}, A), Array{RGB{N0f8},2})
     @test isa(convert(Array{Gray{N0f8},2}, A), Array{Gray{N0f8},2})
 end
 
 @testset "internal" begin
-    A = nimarray(rand(RGB{N0f8},3,5), :x, :y)
+    A = NIMArray(rand(RGB{N0f8},3,5), :x, :y)
     @test axes(A) isa Tuple{Vararg{<:AbstractAxis}}
 end
 

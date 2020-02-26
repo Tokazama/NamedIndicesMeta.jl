@@ -22,37 +22,37 @@ const MetaArray{T,N,P<:AbstractArray{T,N},M<:AbstractMetadata} = ImageMeta{T,N,P
 MetaArray(x::AbstractArray, metadata=Metadata()) = ImageMeta(x, metadata)
 
 """
-    nimarray(x, args...; metadata, kwargs...)
+    NIMArray(x, args...; metadata, kwargs...)
 
 Returns an array with named dimensions, an `AbstractAxis` for each indice, and metadata)
 """
-function nimarray(x::AbstractArray{T,N}, args...; metadata::AbstractDict{Symbol,Any}=Metadata(), kwargs...) where {T,N}
+function NIMArray(x::AbstractArray{T,N}, args...; metadata::AbstractDict{Symbol,Any}=Metadata(), kwargs...) where {T,N}
     if isempty(args)
         if isempty(kwargs)
-            return _nimarray(x, metadata)
+            return _NIMArray(x, metadata)
         else
-            return _nimarray(x, values(kwargs), metadata)
+            return _NIMArray(x, values(kwargs), metadata)
         end
     elseif isempty(kwargs)
-        return _nimarray(x, args, metadata)
+        return _NIMArray(x, args, metadata)
     else
         error("Indices can only be specified by keywords or additional arguments after the parent array, not both.")
     end
 end
 
-function _nimarray(x::AbstractArray{T,N}, namedindices::NamedTuple{L}, metadata) where {T,N,L}
+function _NIMArray(x::AbstractArray{T,N}, namedindices::NamedTuple{L}, metadata) where {T,N,L}
     return NamedDimsArray{L}(AxisIndicesArray(ImageMeta(x, metadata), values(namedindices)))
 end
 
-function _nimarray(x::AbstractArray{T,N}, indices::Tuple{Vararg{<:AbstractAxis}}, metadata) where {T,N,L}
+function _NIMArray(x::AbstractArray{T,N}, indices::Tuple{Vararg{<:AbstractAxis}}, metadata) where {T,N,L}
     return NamedDimsArray{ntuple(_ -> :_, Val(N))}(AxisIndicesArray(ImageMeta(x, metadata), indices))
 end
 
-function _nimarray(x::AbstractArray{T,N}, metadata) where {T,N,L}
+function _NIMArray(x::AbstractArray{T,N}, metadata) where {T,N,L}
     return NamedDimsArray{ntuple(_ -> :_, Val(N))}(AxisIndicesArray(ImageMeta(x, metadata)))
 end
 
-function _nimarray(x::AbstractArray{T,N}, axs::Tuple{Vararg{Symbol}}, metadata) where {T,N}
+function _NIMArray(x::AbstractArray{T,N}, axs::Tuple{Vararg{Symbol}}, metadata) where {T,N}
     return NamedDimsArray{axs}(AxisIndicesArray(ImageMeta(x, metadata)))
 end
 # return NamedDimsArray{keys(kwargs)}(AxisIndicesArray(ImageMeta(x, metadata), values(values(kwargs))))

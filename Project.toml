@@ -4,6 +4,7 @@ authors = ["Zachary P. Christensen <zchristensen7@gmail.com>"]
 version = "0.1.0"
 
 [deps]
+AxisIndices = "f52c9ee2-1b1c-4fd8-8546-6350938c7f11"
 FieldProperties = "127e4479-4c95-493a-afaa-609d38175b70"
 ImageAxes = "2803e5a7-5153-5ecf-9a86-9b4c37f5f5ac"
 ImageCore = "a09fc81d-aa75-5fe9-8630-4744c3626534"
@@ -14,8 +15,8 @@ NamedDims = "356022a1-0364-5f58-8944-0da4b18d706f"
 julia = "1"
 
 [extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 MappedArrays = "dbb5928d-eab1-5f90-85c2-b9b0edb7c900"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "MappedArrays]
+test = ["Test", "MappedArrays"]

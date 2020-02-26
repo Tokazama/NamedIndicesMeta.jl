@@ -1,10 +1,22 @@
 # This file is machine-generated - editing it directly is not advised
 
+[[ArrayInterface]]
+deps = ["LinearAlgebra", "Requires", "SparseArrays"]
+git-tree-sha1 = "4f1109cf20b2a31b5196f346bba07b2c61587442"
+uuid = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
+version = "2.4.1"
+
 [[AxisArrays]]
 deps = ["Dates", "IntervalSets", "IterTools", "RangeArrays"]
 git-tree-sha1 = "04f979dd266c708f478334e0a85785eab0558740"
 uuid = "39de3d68-74b9-583c-8d2d-e117c070f3a9"
 version = "0.4.2"
+
+[[AxisIndices]]
+deps = ["ArrayInterface", "Dates", "LinearAlgebra", "StaticRanges", "Statistics"]
+git-tree-sha1 = "fbe483c708f123f0b378baed2244c0f896bb4146"
+uuid = "f52c9ee2-1b1c-4fd8-8546-6350938c7f11"
+version = "0.1.1"
 
 [[Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
@@ -28,9 +40,9 @@ version = "1.0.0"
 
 [[DataStructures]]
 deps = ["InteractiveUtils", "OrderedCollections"]
-git-tree-sha1 = "b7720de347734f4716d1815b00ce5664ed6bbfd4"
+git-tree-sha1 = "5a431d46abf2ef2a4d5d00bd0ae61f651cf854c8"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-version = "0.17.9"
+version = "0.17.10"
 
 [[Dates]]
 deps = ["Printf"]
@@ -190,6 +202,18 @@ uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
 [[SparseArrays]]
 deps = ["LinearAlgebra", "Random"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+
+[[StaticArrays]]
+deps = ["LinearAlgebra", "Random", "Statistics"]
+git-tree-sha1 = "5a3bcb6233adabde68ebc97be66e95dcb787424c"
+uuid = "90137ffa-7385-5640-81b9-e52037218182"
+version = "0.12.1"
+
+[[StaticRanges]]
+deps = ["ArrayInterface", "Dates", "StaticArrays"]
+git-tree-sha1 = "cb35151be6abd6f1f801988c54c1af48ca996355"
+uuid = "d8176aec-3168-11e9-3c98-e3954798be3a"
+version = "0.5.1"
 
 [[Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]

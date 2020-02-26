@@ -2,7 +2,7 @@ module NamedIndicesMeta
 
 using NamedDims, ImageCore, ImageMetadata, ImageAxes, FieldProperties, AxisIndices
 
-export nimarray, has_time_axis, spatialaxes
+export NIMArray, has_time_axis, spatialaxes
 
 #=
 Design decision:
