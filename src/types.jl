@@ -44,7 +44,7 @@ function _NIMArray(x::AbstractArray{T,N}, namedindices::NamedTuple{L}, metadata)
     return NamedDimsArray{L}(AxisIndicesArray(ImageMeta(x, metadata), values(namedindices)))
 end
 
-function _NIMArray(x::AbstractArray{T,N}, indices::Tuple{Vararg{<:AbstractAxis}}, metadata) where {T,N,L}
+function _NIMArray(x::AbstractArray{T,N}, indices::Tuple, metadata) where {T,N,L}
     return NamedDimsArray{ntuple(_ -> :_, Val(N))}(AxisIndicesArray(ImageMeta(x, metadata), indices))
 end
 

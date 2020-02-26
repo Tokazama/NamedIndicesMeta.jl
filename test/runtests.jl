@@ -149,3 +149,21 @@ end
     @test axes(A) isa Tuple{Vararg{<:AbstractAxis}}
 end
 
+@testset "ImageMetadata" begin
+    a = rand(2,2)
+    nia = NIArray(a, x = 2:3, y = 3:4)
+    ima = IMArray(a, 2:3, 3:4)
+    nima = NIMArray(a, x = 2:3, y = 3:4)
+
+    @test isempty(properties(nima))
+    @test isempty(properties(ima))
+
+    ima.foo = true
+    nima.foo = true
+    @test ima.foo
+    @test nima.foo
+
+    @test first(properties(nima)) == Pair(:foo, true)
+    @test first(properties(ima)) == Pair(:foo, true)
+
+end
