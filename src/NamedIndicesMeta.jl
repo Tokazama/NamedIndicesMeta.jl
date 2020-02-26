@@ -1,38 +1,59 @@
 module NamedIndicesMeta
 
 using NamedDims, ImageCore, ImageMetadata, ImageAxes, FieldProperties, AxisIndices
+using Base: tail
+
+import ImageAxes: timeaxis, timedim, colordim
 
 export
     NIMArray,
     NIArray,
     IMArray,
-    has_time_axis,
-    spatialaxes,
+    MetaArray,
     # reexports
-    properties
-
-#=
-Design decision:
-indices_* : the numbers that index the array directly
-*axis : the keys corresponding to the indices
-=#
-
-###
-
-function finddim(f::Function, x)
-    for (i,n) in enumerate(dimnames(x))
-        f(n) && return i
-    end
-    return nothing
-end
-
-# TODO this should go in NamedDims
-named_axes(x) = NamedTuple{dimnames(x)}(axes(x))
+    properties,
+    # color
+    colordim,
+    has_color_axis,
+    indices_color,
+    coloraxis,
+    # frequency
+    frequencydim,
+    has_frequency_axis,
+    indices_frequency,
+    frequencyaxis,
+    # channel
+    channeldim,
+    has_channel_axis,
+    indices_channel,
+    channelaxis,
+    # observation
+    observationdim,
+    has_observation_axis,
+    indices_observation,
+    observationaxis,
+    # time
+    has_time_axis,
+    timedim,
+    timeaxis,
+    nimages,
+    time_end,
+    onset,
+    duration,
+    sampling_rate,
+    # spatial
+    spatial_axes,
+    spacedirections,
+    coords_spatial,
+    indices_spatial,
+    pixelspacing
 
 include("types.jl")
-include("image_metadata.jl")
-include("image_core.jl")
-include("image_axes.jl")
+include("named_dimensions.jl")
+include("spatial.jl")
+include("time.jl")
+include("channels.jl")
+include("properties.jl")
 
 end # module
 

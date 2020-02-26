@@ -90,6 +90,35 @@ end
     @test dimnames(p) == (:y, :x, :color)
     @test axes(p) == (1:4, 1:5, 1:3)
     @test colordim(p) == 3
+    @test has_color_axis(p)
+    @test indices_color(p) == 1:3
+end
+
+@testset "frequency" begin
+    a = rand(2,2)
+    nia = NIArray(a, x = 2:3, frequency = 3:4)
+    @test has_frequency_axis(nia)
+    @test frequencyaxis(nia) == 3:4
+    @test indices_frequency(nia) == 1:2
+    @test frequencydim(nia) == 2
+end
+
+@testset "channel" begin
+    a = rand(2,2)
+    nia = NIArray(a, x = 2:3, channel = 3:4)
+    @test has_channel_axis(nia)
+    @test channelaxis(nia) == 3:4
+    @test indices_channel(nia) == 1:2
+    @test channeldim(nia) == 2
+end
+
+@testset "observation" begin
+    a = rand(2,2)
+    nia = NIArray(a, x = 2:3, observation = 3:4)
+    @test has_observation_axis(nia)
+    @test observationaxis(nia) == 3:4
+    @test indices_observation(nia) == 1:2
+    @test observationdim(nia) == 2
 end
 
 @testset "nested" begin
@@ -112,6 +141,9 @@ end
     @test coords_spatial(P) == (2, 3)
     @test coords_spatial(M) == (1, 2)
     @test spatialorder(P) == spatialorder(M) == (:y, :x)
+    @test sampling_rate(P) == 1 / step(timeaxis(P))
+    @test time_end(P) == last(timeaxis(P))
+    @test onset(P) == first(timeaxis(P))
     @test @inferred(size_spatial(P)) == @inferred(size_spatial(M)) == (4, 5)
     @test_throws ErrorException assert_timedim_last(P)
     assert_timedim_last(M)
@@ -154,16 +186,23 @@ end
     nia = NIArray(a, x = 2:3, y = 3:4)
     ima = IMArray(a, 2:3, 3:4)
     nima = NIMArray(a, x = 2:3, y = 3:4)
+    ma = MetaArray(a)
 
-    @test isempty(properties(nima))
+    @test isempty(properties(ma))
     @test isempty(properties(ima))
+    @test isempty(properties(nima))
 
+    ma.foo = true
     ima.foo = true
     nima.foo = true
+
+    @test ma.foo
     @test ima.foo
     @test nima.foo
 
-    @test first(properties(nima)) == Pair(:foo, true)
+    @test first(properties(ma)) == Pair(:foo, true)
     @test first(properties(ima)) == Pair(:foo, true)
-
+    @test first(properties(nima)) == Pair(:foo, true)
 end
+
+

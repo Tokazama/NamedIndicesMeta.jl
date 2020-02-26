@@ -55,5 +55,3 @@ end
 function _NIMArray(x::AbstractArray{T,N}, axs::Tuple{Vararg{Symbol}}, metadata) where {T,N}
     return NamedDimsArray{axs}(AxisIndicesArray(ImageMeta(x, metadata)))
 end
-# return NamedDimsArray{keys(kwargs)}(AxisIndicesArray(ImageMeta(x, metadata), values(values(kwargs))))
-

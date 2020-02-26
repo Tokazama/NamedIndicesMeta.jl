@@ -1,5 +1,4 @@
 
-
 # These should either reach ImageMeta or error
 # Could use HasProperties to gracefully error though
 ImageMetadata.properties(x::AxisIndicesArray) = properties(parent(x))
