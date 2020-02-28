@@ -1,11 +1,15 @@
 
 function ImageCore.permuteddimsview(nda::NamedDimsArray, perm)
-    return NamedDimsArray(permuteddimsview(parent(nda), perm),
-                          NamedDims.permute_dimnames(dimnames(nda), perm))
+    return NamedDimsArray(
+        permuteddimsview(parent(nda), perm),
+        NamedDims.permute_dimnames(dimnames(nda), perm)
+    )
 end
 
-function ImageCore.permuteddimsview(x::AxisIndicesArray, perm)
-    return AxisIndicesArray(permuteddimsview(parent(x), perm), AxisIndices.permute_axes(x, perm))
+function ImageCore.permuteddimsview(x::AbstractAxisIndices, perm)
+    p = permuteddimsview(parent(x), perm)
+    axs = AxisIndices.permute_axes(x, perm)
+    return AxisIndices.similar_type(x, typeof(p), typeof(axs))(p, axs)
 end
 
 function ImageCore.channelview(A::NamedDimsArray{L}) where {L}
@@ -14,11 +18,14 @@ end
 _channelview(n::Tuple{Vararg{Symbol,N}}, a::AbstractArray{T,M}) where {T,N,M} = NamedDimsArray{(:color, n...,)}(a)
 _channelview(n::Tuple{Vararg{Symbol,N}}, a::AbstractArray{T,N}) where {T,N} = NamedDimsArray{n}(a)
 
-ImageCore.channelview(A::AxisIndicesArray) = _channelview(axes(A), channelview(parent(A)))
-function _channelview(axs::Tuple{Vararg{<:AbstractAxis,N}}, a::AbstractArray{T,N}) where {T,N}
-    return AxisIndicesArray(a, axs)
+ImageCore.channelview(A::AbstractAxisIndices) = _channelview(A, channelview(parent(A)), axes(A))
+function _channelview(A::AbstractAxisIndices, a::AbstractArray{T,N}, axs::Tuple{Vararg{<:AbstractAxis,N}}) where {T,N}
+    return AxisIndices.similar_type(A, typeof(a), typeof(axs))(a, axs)
 end
-function _channelview(axs::Tuple{Vararg{<:AbstractAxis,N}}, a::AbstractArray{T,M}) where {T,M,N}
-    return AxisIndicesArray(a, (axes(a, 1), axs...,))
+function _channelview(A::AbstractAxisIndices, a::AbstractArray{T,N}, axs::Tuple{Vararg{<:AbstractAxis,M}}) where {T,N,M}
+    return _channelview(A, a, (AxisIndices.to_axis(A, axes(a, 1)), axs...,))
 end
+#function _channelview(A, axs::Tuple{Vararg{<:AbstractAxis,N}}, a::AbstractArray{T,M}) where {T,M,N}
+#    return AxisIndicesArray(a, (axes(a, 1), axs...,))
+#end
 
