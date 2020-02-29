@@ -25,7 +25,4 @@ end
 function _channelview(A::AbstractAxisIndices, a::AbstractArray{T,N}, axs::Tuple{Vararg{<:AbstractAxis,M}}) where {T,N,M}
     return _channelview(A, a, (AxisIndices.to_axis(A, axes(a, 1)), axs...,))
 end
-#function _channelview(A, axs::Tuple{Vararg{<:AbstractAxis,N}}, a::AbstractArray{T,M}) where {T,M,N}
-#    return AxisIndicesArray(a, (axes(a, 1), axs...,))
-#end
 
