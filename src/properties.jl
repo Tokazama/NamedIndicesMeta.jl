@@ -9,7 +9,6 @@ ImageMetadata.properties(x::NamedDimsArray) = _properties(HasProperties(x), x)
 _properties(::HasProperties{true}, x) = properties(parent(x))
 _properties(::HasProperties{false}, x) = error("$(typeof(x)) does not have properties.")
 
-
 function Base.hasproperty(x::AbstractAxisIndices{T,N,<:ImageMeta}, s::Symbol) where {T,N}
     return hasproperty(parent(x), s)
 end

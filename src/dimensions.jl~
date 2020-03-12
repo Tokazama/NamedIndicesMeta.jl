@@ -1,0 +1,204 @@
+
+function getdim_error(x, condition::Symbol)
+    throw(ArgumentError("Specified name ($(repr(condition))) does not match any dimension names for $(repr(x)))"))
+end
+
+function getdim_error(x, condition::Function)
+    throw(ArgumentError("Method $(Symbol(condition)) is not true for any dimensions of $(repr(x)))"))
+end
+
+"""
+    getdim(x, condition [, default=getdim_error])
+
+Returns the dimension that matches `condition`. If `condition` is a `Symbol` then
+each the index of `dimnames(x)` that is true is returned. If `condition` is a function
+then wherever the `condition(dimnames(x)[i])` is true returns `i`. If `condition`
+isn't true for any dimensions name then `default` is returned. If `default` is a
+function then `default(x, condition)` is returned.
+
+## Examples
+
+```jldoctests
+julia> getdim(NamedDimsArray(ones(2, 2), (:a, :b)), :b)
+2
+
+julia> getdim(NamedDimsArray(ones(2, 2), (:a, :b)), :c)
+ERROR: ArgumentError: Specified name (:c) does not match any dimension names for [1.0 1.0; 1.0 1.0])
+[...]
+
+julia> is_a(x) = x === :a;
+
+julia> getdim(NamedDimsArray(ones(2, 2), (:a, :b)), is_a)
+1
+
+julia> getdim(NamedDimsArray(ones(2, 2), (:b, :c)), is_a)
+ERROR: ArgumentError: Method is_a is not true for any dimensions of [1.0 1.0; 1.0 1.0])
+[...]
+
+julia> getdim(NamedDimsArray(ones(2, 2), (:a, :b)), is_a, false)
+1
+
+julia> getdim(NamedDimsArray(ones(2, 2), (:b, :c)), is_a, false)
+false
+```
+"""
+@inline function getdim(x, condition, default=getdim_error)
+    return _getdim(x, dimnames(x), condition, default)
+end
+
+@inline function getdim(x::Tuple{Vararg{Symbol}}, condition, default=getdim_error)
+    return _getdim(x, x, condition, default)
+end
+
+function _getdim(x, dnames, condition, default)
+    d = __getdim(dnames, condition)
+    if d === 0
+        return default
+    else
+        return d
+    end
+end
+
+function _getdim(x, dnames, condition, default::Function)
+    d = __getdim(dnames, condition)
+    if d === 0
+        return default(x, condition)
+    else
+        return d
+    end
+end
+
+function __getdim(dnames::Tuple{Vararg{Symbol}}, condition::Symbol)
+    return NamedDims.dim_noerror(dnames, condition)
+end
+
+function __getdim(dnames::Tuple{Vararg{Symbol,N}}, condition::Function) where {N}
+    for ii in Base.OneTo(N)
+        condition(getfield(dnames, ii)) && return ii
+    end
+    return 0
+end
+
+
+abstract type DataFormat end
+
+struct IteratorFormat end
+
+struct ArrayFormat{D} end
+
+###
+function get_format(x::AbstractArray, condition, default=getdim_error)
+    return getdim(x, condition, default)
+end
+
+
+to_format(::IteratorFormat, ::IteratorFormat, data) = data
+
+# TODO
+#function to_format(::ArrayFormat{D_dst}, src::IteratorFormat, data) where {D_dst}
+#    return eachslice(data; dims=D_src)
+#end
+
+function to_format(::IteratorFormat, src::ArrayFormat{D_src}, data) where {D_src}
+    return eachslice(data; dims=D_src)
+end
+
+to_format(::ArrayFormat{D}, ::ArrayFormat{D}, data) where {D} = data
+
+function to_format(::ArrayFormat{D_dst}, ::ArrayFormat{D_src}, data::A) where {D_dst,D_src,A}
+    perm = ntuple(ndims(A)) do ii
+        if ii === D_dst
+            return D_src
+        elseif ii === D_src
+            return D_dst
+        else
+            return ii
+        end
+    end
+    return PermutedDimsArray(data, perm)
+end
+
+macro defdim(name, condition)
+
+    name_dim = Symbol(name, :dim)
+    name_dim_doc = """
+        $name_dim(x) -> Int
+
+    Returns the dimension corresponding to the $name.
+    """
+
+    name_axis = Symbol(name, :axis)
+    name_axis_doc = """
+        $name_axis(x)
+
+    Returns the axis corresponding to the $name dimension.
+    """
+
+    name_indices = Symbol(name, :_indices)
+    name_indices_doc = """
+        $name_indices(x)
+
+    Returns the indices corresponding to the $name axis
+    """
+
+    name_keys = Symbol(name, :_keys)
+    name_keys_doc = """
+        $name_keys(x)
+
+    Returns the keys corresponding to the $name axis
+    """
+
+    name_type = Symbol(name, :_type)
+    name_type_doc = """
+        $name_type(x)
+
+    Returns the key type corresponding to the $name axis.
+    """
+
+    name_format = Symbol(name, :_format)
+    name_format_doc = """
+        $name_format(x, default)
+
+    Returns the appropriate `DataFormat` for $name.
+    """
+
+    to_name_format = Symbol(:to_, name, :_format)
+    # TODO
+    to_name_format_doc = """
+        $to_name_format(dst, src[, default=1])
+
+    Returns $name data from `src` in a format that is compatible with `dst`.
+    `default` refers to a default dimension if data from `dst` or `src` requires
+    data in an array format but doesn't specify dimension that corresponds to $name.
+    """
+
+    esc(quote
+        @doc $name_dim_doc
+        function $name_dim(x, default=NamedIndicesMeta.getdim_error)
+            return NamedIndicesMeta.getdim(x, $condition, default)
+        end
+
+        @doc $name_axis_doc
+        $name_axis(x) = axes(x, $name_dim(x))
+
+        @doc $name_keys_doc
+        $name_keys(x) = keys($name_axis(x))
+
+        @doc $name_indices_doc
+        $name_indices(x) = values($name_axis(x))
+
+        @doc $name_type_doc
+        $name_type(x) = keytype($name_axis(x))
+
+        @doc $name_format_doc
+        function $name_format(x::AbstractArray, default=NamedIndicesMeta.getdim_error)
+            return NamedIndicesMeta.get_format(x, $condition, default)
+        end
+
+        @doc $to_name_format
+        function $to_name_format(dst, src, default)
+            return NamedIndicesMeta.to_format($name_format(dst, default), $name_format(src, default), src)
+        end
+    end)
+end
+

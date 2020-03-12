@@ -1,4 +1,30 @@
 
+module ColorData
+
+using ImageCore, NamedDims, ImageAxes, AxisIndices, NamedIndicesMeta
+
+import ImageAxes: colordim
+
+export
+    is_color,
+    # @defdim output
+    colordim,
+    has_colordim,
+    color_axis,
+    color_axis_type,
+    color_keys,
+    color_indices,
+    to_color_format,
+    ncolor,
+    color_format,
+    # reexport
+    permuteddimsview,
+    channelview
+
+Base.@pure is_color(x::Symbol) = x === :color
+
+@defdim color is_color
+
 function ImageCore.permuteddimsview(nda::NamedDimsArray, perm)
     return NamedDimsArray(
         permuteddimsview(parent(nda), perm),
@@ -7,9 +33,11 @@ function ImageCore.permuteddimsview(nda::NamedDimsArray, perm)
 end
 
 function ImageCore.permuteddimsview(x::AbstractAxisIndices, perm)
-    p = permuteddimsview(parent(x), perm)
-    axs = AxisIndices.permute_axes(x, perm)
-    return AxisIndices.similar_type(x, typeof(p), typeof(axs))(p, axs)
+    return AxisIndices.unsafe_reconstruct(
+        x,
+        permuteddimsview(parent(x), perm),
+        AxisIndices.permute_axes(x, perm)
+    )
 end
 
 function ImageCore.channelview(A::NamedDimsArray{L}) where {L}
@@ -22,7 +50,9 @@ ImageCore.channelview(A::AbstractAxisIndices) = _channelview(A, channelview(pare
 function _channelview(A::AbstractAxisIndices, a::AbstractArray{T,N}, axs::Tuple{Vararg{<:AbstractAxis,N}}) where {T,N}
     return AxisIndices.similar_type(A, typeof(a), typeof(axs))(a, axs)
 end
+
 function _channelview(A::AbstractAxisIndices, a::AbstractArray{T,N}, axs::Tuple{Vararg{<:AbstractAxis,M}}) where {T,N,M}
-    return _channelview(A, a, (AxisIndices.to_axis(A, axes(a, 1)), axs...,))
+    return _channelview(A, a, (AxisIndices.as_axis(A, axes(a, 1)), axs...,))
 end
 
+end

@@ -1,59 +1,55 @@
 module NamedIndicesMeta
 
-using NamedDims, ImageCore, ImageMetadata, ImageAxes, FieldProperties, AxisIndices
+using NamedDims, ImageCore, ImageMetadata, ImageAxes, FieldProperties,
+      AxisIndices, LightGraphs, SimpleWeightedGraphs, Reexport, MappedArrays
 using Base: tail
 
-import ImageAxes: timeaxis, timedim, colordim
+import ImageAxes: timeaxis, timedim, colordim, checknames, isstreamedaxis
 
 export
+    NamedDimsArray,
+    AxisIndicesArray,
     NIMArray,
     NIArray,
     IMArray,
     MetaArray,
-    # reexports
     properties,
-    # color
-    colordim,
-    has_color_axis,
-    indices_color,
-    coloraxis,
-    # frequency
-    frequencydim,
-    has_frequency_axis,
-    indices_frequency,
-    frequencyaxis,
-    # channel
-    channeldim,
-    has_channel_axis,
-    indices_channel,
-    channelaxis,
-    # observation
-    observationdim,
-    has_observation_axis,
-    indices_observation,
-    observationaxis,
-    # time
-    has_time_axis,
-    timedim,
-    timeaxis,
-    nimages,
-    time_end,
-    onset,
-    duration,
-    sampling_rate,
-    # spatial
-    spatial_axes,
-    spacedirections,
-    coords_spatial,
-    indices_spatial,
-    pixelspacing
+    dimnames,
+    getdim,
+    named_axes,
+    @defdim
 
 include("types.jl")
-include("named_dimensions.jl")
-include("spatial.jl")
-include("time.jl")
-include("channels.jl")
 include("properties.jl")
+include("data_format.jl")
+include("defdim.jl")
+
+include("time.jl")
+using .TimeData
+
+include("color.jl")
+using .ColorData
+
+include("observation.jl")
+using .ObservationData
+
+include("spatial.jl")
+using .SpatialData
+
+include("graphs.jl")
+using .AxisIndicesGraphs
+
+include("deprecations.jl")
+
+@reexport using NamedIndicesMeta.TimeData
+
+@reexport using NamedIndicesMeta.ColorData
+
+@reexport using NamedIndicesMeta.ObservationData
+
+@reexport using NamedIndicesMeta.SpatialData
+
+@reexport using NamedIndicesMeta.AxisIndicesGraphs
 
 end # module
 
